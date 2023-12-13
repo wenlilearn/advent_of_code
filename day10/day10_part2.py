@@ -36,7 +36,7 @@ dirs = {
   'J': [(0, -1), (-1, 0)],
   '7': [(1, 0), (0, -1)],
   'F': [(1, 0), (0, 1)],
-  'S': [(-1, 0), (0, 1)]
+  'S': [(-1, 0), (0, 1), (0, -1), (1, 0)]
 }
 
 inputs = [
@@ -52,17 +52,17 @@ inputs = [
   "....L---J.LJ.LJLJ..."
 ]
 
-# inputs = [
-#   "..........",
-#   ".S------7.",
-#   ".|F----7|.",
-#   ".||....||.",
-#   ".||....||.",
-#   ".|L-7F-J|.",
-#   ".|..||..|.",
-#   ".L--JL--J.",
-#   ".........."
-# ]
+inputs = [
+  "..........",
+  ".S------7.",
+  ".|F----7|.",
+  ".||....||.",
+  ".||....||.",
+  ".|L-7F-J|.",
+  ".|..||..|.",
+  ".L--JL--J.",
+  ".........."
+]
 
 # Find S in the inputs
 m, n = len(inputs), len(inputs[0])
@@ -75,151 +75,70 @@ for i in range(m):
     if inputs[i][j] == 'S':
       start = (i, j)
       break
-# Then BFS dirs till we can't traverse it anymore.
-queue = deque()
-queue.append(start)
+print(start)
+loop = []
+def dfs(i, j, inputs, visited, path):
+  global m, n, dirs, start, loop
+  if i < 0 or i >= m or j < 0 or j >= n or inputs[i][j] == '.' or (i, j) in visited:
+    if (i, j) == start:
+      loop.append(path[::])
+    return
+  visited.add((i, j))
+  cur_char = inputs[i][j]
+  for d in dirs[cur_char]:
+    path.append((i + d[0], j + d[1]))
+    dfs(i + d[0], j + d[1], inputs, visited, path)
+    path.pop()
+
 visited = set()
-steps = 0
-
-while queue:
-  size = len(queue)
-  for _ in range(size):
-    cur = queue.popleft()
-    cur_char = inputs[cur[0]][cur[1]]
-    inputs[cur[0]][cur[1]] = '#'
-    if cur in visited:
-      continue
-    visited.add(cur)
-
-    for d in dirs[cur_char]:
-      nxt = (cur[0] + d[0], cur[1] + d[1])
-      if nxt[0] < 0 or nxt[0] >= m or nxt[1] < 0 or nxt[1] >= n or inputs[nxt[0]][nxt[1]] == '.' or inputs[nxt[0]][nxt[1]] == '#' or nxt in visited:
-        continue
-      queue.append(nxt)
-
-# for input in inputs:
-#   print("".join(input))
-  
-def is_outer_valid(i, j):
-  global m, n, inputs
-  
-  i1, j1 = i, j
-  while i1 >= 0:
-    if i1 != i and (inputs[i1][j1] == '#' or inputs[i1][j1] == 'X'):
-      break
-    i1 -= 1
-  
-  i2, j2 = i, j
-  while i2 < m:
-    if i2 != i and (inputs[i2][j2] == '#' or inputs[i2][j2] == 'X'):
-      break 
-    i2 += 1
-  
-  i3, j3 = i, j
-  while j3 >= 0:
-    if j3 != j and (inputs[i3][j3] == '#' or inputs[i3][j3] == 'X'):
-      break
-    j3 -= 1
-  
-  i4, j4 = i, j
-  while j4 < n:
-    if j4 != j and (inputs[i4][j4] == '#' or inputs[i4][j4] == 'X'):
-      break
-    j4 += 1
-  
-  return i1 == -1 or i2 == m or j3 == -1 or j4 == n
-
-# print(is_outer_valid(2, 2))
-for i in range(m):
-  for j in range(n):
-    if inputs[i][j] == '#':
-      if is_outer_valid(i, j):
-        inputs[i][j] = 'X'
+path = []
+dfs(start[0], start[1], inputs, visited, path)
+print(loop)
+for i in loop[0]:
+  inputs[i[0]][i[1]] = 'X'
 for input in inputs:
-  print("".join(input)) 
+  print(''.join(input))
+# def is_surrounded(i, j):
+#   global m, n, inputs
+  
+#   i1, j1 = i, j
+#   while i1 >= 0:
+#     if i1 != i and (inputs[i1][j1] == 'X'):
+#       break
+#     i1 -= 1
+  
+#   i2, j2 = i, j
+#   while i2 < m:
+#     if i2 != i and (inputs[i2][j2] == 'X'):
+#       break 
+#     i2 += 1
+  
+#   i3, j3 = i, j
+#   while j3 >= 0:
+#     if j3 != j and (inputs[i3][j3] == 'X'):
+#       break
+#     j3 -= 1
+  
+#   i4, j4 = i, j
+#   while j4 < n:
+#     if j4 != j and (inputs[i4][j4] == 'X'):
+#       break
+#     j4 += 1
+  
+#   return (
+#     (i1 >= 0 and inputs[i1][j1] == 'X') and
+#     (i2 < m and inputs[i2][j2] == 'X') and
+#     (j3 >= 0 and inputs[i3][j3] == 'X') and
+#     (j4 < n and inputs[i4][j4] == 'X')
+#   )
+# tiles = 0
+# for i in range(m):
+#   for j in range(n):
+#     if inputs[i][j] == '#' or inputs[i][j] == 'X':
+#       continue
+#     if is_surrounded(i, j):
+#       tiles += 1
 
-print('-----------------------')
-
-def is_inner_valid(i, j):
-  global m, n, inputs
-  
-  i1, j1 = i, j
-  while i1 >= 0:
-    if i1 != i and (inputs[i1][j1] == '#'):
-      break
-    i1 -= 1
-  
-  i2, j2 = i, j
-  while i2 < m:
-    if i2 != i and (inputs[i2][j2] == '#'):
-      break 
-    i2 += 1
-  
-  i3, j3 = i, j
-  while j3 >= 0:
-    if j3 != j and (inputs[i3][j3] == '#'):
-      break
-    j3 -= 1
-  
-  i4, j4 = i, j
-  while j4 < n:
-    if j4 != j and (inputs[i4][j4] == '#'):
-      break
-    j4 += 1
-  
-  return i1 == -1 or i2 == m or j3 == -1 or j4 == n
-
-for i in range(m):
-  for j in range(n):
-    if inputs[i][j] == '#' or inputs[i][j] == 'X':
-      continue
-    visited = set()
-    if not is_inner_valid(i, j):
-      inputs[i][j] = '#' 
-for input in inputs:
-  print("".join(input)) 
-
-def is_surrounded(i, j):
-  global m, n, inputs
-  
-  i1, j1 = i, j
-  while i1 >= 0:
-    if i1 != i and (inputs[i1][j1] == 'X'):
-      break
-    i1 -= 1
-  
-  i2, j2 = i, j
-  while i2 < m:
-    if i2 != i and (inputs[i2][j2] == 'X'):
-      break 
-    i2 += 1
-  
-  i3, j3 = i, j
-  while j3 >= 0:
-    if j3 != j and (inputs[i3][j3] == 'X'):
-      break
-    j3 -= 1
-  
-  i4, j4 = i, j
-  while j4 < n:
-    if j4 != j and (inputs[i4][j4] == 'X'):
-      break
-    j4 += 1
-  
-  return (
-    (i1 >= 0 and inputs[i1][j1] == 'X') and
-    (i2 < m and inputs[i2][j2] == 'X') and
-    (j3 >= 0 and inputs[i3][j3] == 'X') and
-    (j4 < n and inputs[i4][j4] == 'X')
-  )
-tiles = 0
-for i in range(m):
-  for j in range(n):
-    if inputs[i][j] == '#' or inputs[i][j] == 'X':
-      continue
-    if is_surrounded(i, j):
-      tiles += 1
-
-print(tiles)
+# print(tiles)
 
 
