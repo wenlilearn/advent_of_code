@@ -21,6 +21,8 @@ rows = 0
 cols = 0
 
 for pattern in patterns:
+  rows_found = False
+  cols_found = False
   m, n = len(pattern), len(pattern[0])
   # First reflect on rows
   for i in range(1, m):
@@ -32,7 +34,10 @@ for pattern in patterns:
         x -= 1
         y += 1
       if x == -1 or y == m:
-         rows += i
+        rows += i
+        rows_found = True 
+  # if rows_found:
+  #   break
      
   # Transpose the matrix
   tranposed = list(map(list, zip(*pattern)))
