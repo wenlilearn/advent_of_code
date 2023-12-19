@@ -1,4 +1,3 @@
-# Incorrect!
 import os
 inputs = []
 dir = os.path.dirname(__file__)
@@ -16,45 +15,73 @@ for input in inputs:
       continue
   pattern.append(list(input))
 
+# print(patterns)
+
+m = len(patterns)
+for pattern in patterns:
+  if len(pattern) % 2 == 0:
+    print('even!')
+  if len(pattern[0]) % 2 == 0:
+    print('even!')
+
 total = 0
 rows = 0
 cols = 0
 
 for pattern in patterns:
-  rows_found = False
-  cols_found = False
-  m, n = len(pattern), len(pattern[0])
+  cur = pattern[1:]
+  m, n = len(cur), len(cur[0])
   # First reflect on rows
   for i in range(1, m):
-    if pattern[i] == pattern[i - 1]:
-      x, y = i - 1, i
-      while x >= 0 and y < m:
-        if pattern[x] != pattern[y]:
-          break
-        x -= 1
-        y += 1
-      if x == -1 or y == m:
-        rows += i
-        rows_found = True 
-  # if rows_found:
-  #   break
+    if cur[i] == cur[i - 1]:
+      s, e = i - 1, i
+      while s >= 0 and e < m and cur[s] == cur[e]:
+        s -= 1
+        e += 1
+      if s == -1 and e == m:
+        rows += i + 1
+        break
+  
+  cur = pattern[:-1]
+  m, n = len(cur), len(cur[0])
+  for i in range(1, m):
+    if cur[i] == cur[i - 1]:
+      s, e = i - 1, i
+      while s >= 0 and e < m and cur[s] == cur[e]:
+        s -= 1
+        e += 1
+      if s == -1 and e == m:
+        rows += i + 1
+        break
      
   # Transpose the matrix
   tranposed = list(map(list, zip(*pattern)))
   tranposed = [row[::-1] for row in tranposed]
 
+  cur = tranposed[1:]
   # Then reflect on cols
-  m, n = len(tranposed), len(tranposed[0])
+  m, n = len(cur), len(cur[0])
   for i in range(1, m):
-    if tranposed[i] == tranposed[i - 1]:
-      x, y = i - 1, i
-      while x >= 0 and y < m:
-        if tranposed[x] != tranposed[y]:
-          break
-        x -= 1
-        y += 1
-      if x == -1 or y == m:
-         cols += i
+    if cur[i] == cur[i - 1]:
+      s, e = i - 1, i
+      while s >= 0 and e < m and cur[s] == cur[e]:
+        s -= 1
+        e += 1
+      if s == -1 and e == m:
+        cols += i + 1
+
+  cur = tranposed[:-1]
+  # Then reflect on cols
+  m, n = len(cur), len(cur[0])
+  for i in range(1, m):
+    if cur[i] == cur[i - 1]:
+      s, e = i - 1, i
+      while s >= 0 and e < m and cur[s] == cur[e]:
+        s -= 1
+        e += 1
+      if s == -1 and e == m:
+        cols += i + 1
+        break
 
 total = rows * 100 + cols
 print(total)       
