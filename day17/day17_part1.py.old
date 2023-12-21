@@ -1,0 +1,106 @@
+import os
+inputs = []
+dir = os.path.dirname(__file__)
+with open(os.path.join(dir, 'input.txt'), 'r') as file:
+    inputs = [line.strip() for line in file]
+inputs = [list(map(lambda i: int(i), input)) for input in inputs]
+
+D, R, U, L = 0, 1, 2, 3
+DS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+
+import heapq
+queue = []
+visited = {}
+heapq.heappush(queue, ((inputs[0][0], D, 0, 0, 3, [(0, 0, D)])))
+heapq.heappush(queue, ((inputs[0][0], R, 0, 0, 3, [(0, 0, R)])))
+
+m, n = len(inputs), len(inputs[0])
+res = None
+while queue:
+  cur = queue[0] 
+  # print(cur)
+  curh, curd, curx, cury, curs, curss = heapq.heappop(queue)
+  if curx == m - 1 and cury == n - 1:
+      print(cur)
+      res = cur
+      break
+  if (curx, cury) in visited and visited[(curx, cury)] <= curh:
+    continue
+  visited[(curx, cury)] = curh
+  
+  for i in range(4):
+    x, y = curx + DS[i][0], cury + DS[i][1]
+    if x < 0 or x >= m or y < 0 or y >= n:
+      continue
+    
+    if i == curd:
+      curs -= 1
+      if curs == 0:
+        if curd == U or curd == D:
+            heapq.heappush(queue, ((curh + inputs[x][y], L, x, y, 3, curss + [(x, y, L)])))
+            heapq.heappush(queue, ((curh + inputs[x][y], R, x, y, 3, curss + [(x, y, R)])))
+        if curd == L or curd == R:
+            heapq.heappush(queue, ((curh + inputs[x][y], U, x, y, 3, curss + [(x, y, U)])))
+            heapq.heappush(queue, ((curh + inputs[x][y], D, x, y, 3, curss + [(x, y, D)])))
+      else:
+          heapq.heappush(queue, ((curh + inputs[x][y], i, x, y, curs, curss + [(x, y, i)])))
+    else:
+        heapq.heappush(queue, ((curh + inputs[x][y], i, x, y, 3, curss + [(x, y, i)])))
+
+for coord in res[-1]:
+   inputs[coord[0]][coord[1]] = '#'
+
+for input in inputs:
+    print(''.join(list(map(str, input))))
+
+
+
+
+# from collections import deque
+# queue = deque()
+# visited = set()
+# queue.append((inputs[0][0], D, 0, 0, 3))
+# queue.append((inputs[0][0], R, 0, 0, 3))
+
+# m, n = len(inputs), len(inputs[0])
+# while queue:
+#     # print(queue)
+#     curh, curd, curx, cury, curs = queue.popleft()
+#     if curx == m - 1 and cury == n - 1:
+#         print(curh)
+#         break
+#     if (curx, cury) in visited:
+#       continue
+#     visited.add((curx, cury))
+    
+#     for i in range(4):
+#       x, y = curx + DS[i][0], cury + DS[i][1]
+#       if x < 0 or x >= m or y < 0 or y >= n:
+#         continue
+      
+#       if curd == D and i == U:
+#         continue
+      
+#       if curd == U and i == D:
+#         continue
+      
+#       if curd == L and i == R:
+#         continue
+
+#       if curd == R and i == L:
+#         continue
+
+#       if i == curd:
+#           curs -= 1
+#           if curs == 0:
+#             if curd == U or curd == D:
+#                 queue.append(((curh + inputs[x][y], L, x, y, 3)))
+#                 queue.append(((curh + inputs[x][y], R, x, y, 3)))
+#             if curd == L or curd == R:
+#                 queue.append(((curh + inputs[x][y], U, x, y, 3)))
+#                 queue.append(((curh + inputs[x][y], D, x, y, 3)))
+#           else:
+#               queue.append(((curh + inputs[x][y], i, x, y, curs)))
+#       else:
+#           queue.append(((curh + inputs[x][y], i, x, y, 3)))
+
